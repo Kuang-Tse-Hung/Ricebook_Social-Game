@@ -1,0 +1,17 @@
+
+.login{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 150px;
+}
+
+.login-card{
+  padding: 75px 45px;
+  width: 450px;
+  height: 780px;
+}
+
+mat-form-field {
+  margin-bottom: 30px;  // Adjust based on the typical size of your error messages
+}

@@ -1,0 +1,15 @@
+.demo-app-header {
+  position: fixed;
+  top: 0;
+  z-index: 2;
+}
+
+.demo-app-container,
+.demo-app-sidenav {
+  padding-top: 64px;
+  height: calc(100vh - 64px);
+}
+
+.toolbar-seprator {
+  flex: 1 1 auto;
+}

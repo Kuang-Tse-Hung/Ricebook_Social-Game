@@ -1,0 +1,84 @@
+<mat-card>
+  <mat-card-title>Profile</mat-card-title>
+  <mat-card-content>
+    <div class="row">
+      <div class="col-12 col-xxl-3">
+        <img src="https://picsum.photos/300/300/?random" alt="User Profile Image" />
+        <div class="mt-2 mb-1">
+          <button type="button" mat-stroked-button color="primary" (click)="fileInput.click()">
+            <mat-icon>add_photo_alternate</mat-icon> Image
+          </button>
+          <input hidden (change)="onFileSelected($event)" #fileInput type="file" accept="image/*">
+          <span class="file-name">{{selectedFile?.name}}</span>
+        </div>
+      </div>
+      <div class="col-12 col-xxl-9">
+        <form [formGroup]="profileForm">
+          <!-- Display Mode -->
+          <ng-container *ngIf="!isEditMode">
+            <div class="user-info">User Name: {{ profileForm.controls.username.value }}</div>
+            <div class="user-info">Email: {{ profileForm.controls.email.value }}</div>
+            <div class="user-info">Phone Number: {{ profileForm.controls.phone.value }}</div>
+            <div class="user-info">Zipcode: {{ profileForm.controls.zipcode.value }}</div>
+            <div class="user-info">Password: {{ profileForm.controls.password.value ?
+              '*'.repeat(profileForm.controls.password.value!. length):'' }}</div>
+          </ng-container>
+
+          <!-- Edit Mode -->
+          <ng-container *ngIf="isEditMode">
+            <div class="d-flex flex-column">
+              <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                <mat-label>User Name</mat-label>
+                <input matInput [formControl]="profileForm.controls.username">
+                <mat-error>
+                  Account Name is required. Account name can only be upper or lower case letters and numbers, but may
+                  not
+                  start with a number. The account name may contain both letters and numbers or only letters.
+                </mat-error>
+              </mat-form-field>
+              <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                <mat-label>Email</mat-label>
+                <input matInput [formControl]="profileForm.controls.email">
+                <mat-error>
+                  Email is required and must be valid, the format shoud be ..xx...@..xx..
+                </mat-error>
+              </mat-form-field>
+              <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                <mat-label>Phone Number</mat-label>
+                <input matInput [formControl]="profileForm.controls.phone">
+                <mat-error>
+                  Phone Number is required and must be valid, the pattern of phone number should be: XXX-XXX-XXXX
+                </mat-error>
+              </mat-form-field>
+              <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                <mat-label>Zipcode</mat-label>
+                <input matInput [formControl]="profileForm.controls.zipcode">
+                <mat-error>
+                  Zipcode is required, zipcode should include exactly 5 digits (US style)
+                </mat-error>
+              </mat-form-field>
+              <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                <mat-label>Password</mat-label>
+                <input type="password" matInput [formControl]="profileForm.controls.password">
+                <mat-error>
+                  Password is required
+                </mat-error>
+              </mat-form-field>
+            </div>
+          </ng-container>
+        </form>
+      </div>
+    </div>
+  </mat-card-content>
+
+  <mat-card-actions align="end">
+    <button *ngIf="!isEditMode" mat-raised-button color="accent" (click)="toggleEditMode()">
+      <mat-icon>edit</mat-icon>Edit
+    </button>
+    <ng-container *ngIf="isEditMode">
+      <button mat-raised-button color="primary" (click)="saveProfile()">Save</button>
+      <button mat-raised-button color="accent" (click)="toggleEditMode()">Cancel</button>
+    </ng-container>
+    <button mat-raised-button routerLink="../main" type="button">Back To Main</button>
+  </mat-card-actions>
+</mat-card>

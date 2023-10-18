@@ -1,0 +1,81 @@
+<mat-toolbar color="primary" class="demo-app-header">
+  <span>HW4</span>
+</mat-toolbar>
+
+<form [formGroup]="registerModel" class="login">
+  <mat-card class="login-card">
+    <mat-card-title>Register</mat-card-title>
+    <mat-card-content class="d-flex flex-column">
+      <mat-form-field hideRequiredMarker>
+        <mat-label>Account Name</mat-label>
+        <input matInput [formControl]="registerModel.controls.accountName">
+        <mat-error>
+          Account Name is required. Account name can only be upper or lower case letters and numbers, but may not start
+          with a number. The account name may contain both letters and numbers or only letters.
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field hideRequiredMarker>
+        <mat-label>Password</mat-label>
+        <input matInput [type]="hidePwd ? 'password' : 'text'" [formControl]="registerModel.controls.password">
+        <button mat-icon-button matSuffix (click)="hidePwd = !hidePwd">
+          <mat-icon>{{ hidePwd ? 'visibility_off' : 'visibility' }}</mat-icon>
+        </button>
+        <mat-error>
+          Password is required
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field hideRequiredMarker>
+        <mat-label>Confirm Password</mat-label>
+        <input matInput [type]="hidePwd ? 'password' : 'text'" [formControl]="registerModel.controls.confirmPassword">
+        <button mat-icon-button matSuffix (click)="hidePwd = !hidePwd">
+          <mat-icon>{{ hidePwd ? 'visibility_off' : 'visibility' }}</mat-icon>
+        </button>
+        <mat-error>
+          Confirm Password is required
+        </mat-error>
+        <mat-error *ngIf="registerModel.hasError('notMatching')">
+          Passwords do not match.
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field hideRequiredMarker>
+        <mat-label>Email Address</mat-label>
+        <input matInput [formControl]="registerModel.controls.emailAddress">
+        <mat-error>
+          Email is required and must be valid, the format shoud be ..xx...@..xx..
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field hideRequiredMarker>
+        <mat-label>Phone Number</mat-label>
+        <input matInput [formControl]="registerModel.controls.phoneNumber">
+        <mat-error>
+          Phone Number is required and must be valid, the pattern of phone number should be: XXX-XXX-XXXX
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field hideRequiredMarker>
+        <mat-label>Date of Birth</mat-label>
+        <input matInput [formControl]="registerModel.controls.dateOfBirth">
+        <mat-error>
+          Date of Birth is required and you must be above 18, the format should be "year-month-date"
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field hideRequiredMarker>
+        <mat-label>Zipcode</mat-label>
+        <input matInput [formControl]="registerModel.controls.zipcode">
+        <mat-error>
+          Zipcode is required, zipcode should include exactly 5 digits (US style)
+        </mat-error>
+      </mat-form-field>
+
+    </mat-card-content>
+    <mat-card-actions align="end">
+      <button mat-button routerLink=".." type="button">Back To Login</button>
+      <button mat-button color="accent" (click)="register()" type="submit">Register</button>
+    </mat-card-actions>
+  </mat-card>
+</form>

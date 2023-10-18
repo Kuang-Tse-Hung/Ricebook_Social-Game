@@ -1,0 +1,75 @@
+<div class="container-fluid">
+
+  <div class="row">
+    <div class="col-12">
+      <mat-card class="post-tile">
+        <form [formGroup]="model">
+          <mat-form-field appearance="outline">
+            <mat-label>Title</mat-label>
+            <input matInput placeholder="input title" [formControl]="model.controls.title">
+          </mat-form-field>
+          <button type="button" mat-stroked-button color="primary" class="ms-3" (click)="fileInput.click()">Image
+            <mat-icon>add_photo_alternate</mat-icon>
+          </button>
+          <input hidden (change)="onFileSelected($event)" #fileInput type="file" accept="image/*">
+          <span class="file-name">{{selectedFile?.name}}</span>
+          <div class="row">
+            <div class="col-sm-9 col-xxl-10">
+              <mat-form-field appearance="outline" class="post-textarea" class="w-100 me-5">
+                <mat-label>Body</mat-label>
+                <textarea matInput placeholder="input body" [formControl]="model.controls.body"></textarea>
+              </mat-form-field>
+            </div>
+            <div class="col-sm-3 col-xxl-2 d-flex flex-column">
+              <button mat-raised-button color="accent" class="mb-2" (click)="publishPost()">
+                Publish
+                <mat-icon>add</mat-icon>
+              </button>
+              <button mat-raised-button color="primary" (click)="cancel()">
+                Cancel<mat-icon>close</mat-icon>
+              </button>
+            </div>
+          </div>
+        </form>
+      </mat-card>
+    </div>
+  </div>
+
+  <div class="row mt-3">
+    <div class="col-12">
+      <mat-form-field appearance="fill" class="w-100">
+        <mat-label>Search</mat-label>
+        <input matInput placeholder="Search Author/text" [(ngModel)]="searchText">
+        <button mat-button matSuffix color="accent" (click)="clearSearch()">
+          <mat-icon>clear</mat-icon>
+        </button>
+        <button mat-raised-button matSuffix color="primary" (click)="inputSearch()">
+          <mat-icon>search</mat-icon>
+        </button>
+      </mat-form-field>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-lg-6 col-xl-4 mb-4" *ngFor="let post of posts">
+      <mat-card class="post-tile h-100">
+        <mat-card-header>
+          <mat-card-title class="w-100">{{ post.title }}...</mat-card-title>
+          <mat-card-subtitle class="w-100">Author: {{ post.author }}</mat-card-subtitle>
+          <img mat-card-avatar src="https://picsum.photos/300/300/?random" /> <!-- avater user photo-->
+        </mat-card-header>
+        <img mat-card-image src="https://picsum.photos/650/600/?random" />
+        <mat-card-content>{{ post.body }}</mat-card-content>
+        <mat-card-actions align="end">
+          <button mat-button color="primary">
+            <mat-icon>insert_comment</mat-icon>
+          </button>
+          <button mat-button color="accent">
+            <mat-icon>edit</mat-icon>
+          </button>
+        </mat-card-actions>
+        <mat-card-footer>2023/09/26</mat-card-footer>
+      </mat-card>
+    </div>
+  </div>
+</div>

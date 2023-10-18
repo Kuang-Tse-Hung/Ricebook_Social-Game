@@ -1,0 +1,30 @@
+<mat-toolbar color="primary" class="demo-app-header">
+  <span>HW4</span>
+</mat-toolbar>
+
+
+<form [formGroup]="model" class="login" (ngSubmit)="login()">
+  <mat-card class="login-card">
+    <mat-card-title>Login</mat-card-title>
+    <mat-card-content class="d-flex flex-column">
+      <mat-form-field hideRequiredMarker>
+        <mat-label>AccountName</mat-label>
+        <input matInput required [formControl]="model.controls.accountName">
+        <mat-error>AccountName is required</mat-error>
+      </mat-form-field>
+      <mat-form-field hideRequiredMarker>
+        <mat-label>Password</mat-label>
+        <input matInput required [type]="hidePwd ? 'password' : 'text'" [formControl]="model.controls.password">
+        <button mat-icon-button matSuffix type="button" (click)="hidePwd = !hidePwd">
+          <mat-icon>{{ hidePwd ? 'visibility_off' : 'visibility' }}</mat-icon>
+        </button>
+        <mat-error>Password is required</mat-error>
+      </mat-form-field>
+      <mat-error *ngIf="model.hasError('invalidUser')">Wrong AccountName or Password, Please Try Again.</mat-error>
+    </mat-card-content>
+    <mat-card-actions align="end">
+      <button mat-button routerLink="register" type="button">Register</button>
+      <button mat-button color="accent" type="submit">Login</button>
+    </mat-card-actions>
+  </mat-card>
+</form>
