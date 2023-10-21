@@ -28,18 +28,36 @@ export class BaselayoutComponent implements OnInit {
   ngOnInit(): void {
     this.loginUser = localStorage.getItem('loginUserName') ?? '';
     this.loginUserId = Number(localStorage.getItem('loginUserId'))
+
+    // First, get the storedStatus and set it to userStatus
+    const storedStatus = localStorage.getItem('userStatus');
+    if (storedStatus) {
+      this.userStatus = storedStatus;
+    }
+
     if(this.loginUserId){
       this.authService.getUser().pipe(
         tap((data) => {
           let userId = this.loginUserId % 10;
-          this.userStatus = data[userId - 1 ].company.catchPhrase;
+          // Only set the userStatus from the API if it's not already set from localStorage
+          if (!this.userStatus) {
+            this.userStatus = data[userId - 1 ].company.catchPhrase;
+          }
           for(let i = 0; i < 3; i++){
             this.followers.push(data[userId])
             userId++;
           }
         })).subscribe()
     }
-  }
+}
+
+editStatus() {
+    // Store the inputStatus to localStorage before clearing it
+    localStorage.setItem('userStatus', this.inputStatus);
+
+    this.userStatus = this.inputStatus;
+    this.inputStatus = '';
+}
 
   logout() {
     this.router.navigate(['../']);
@@ -47,11 +65,6 @@ export class BaselayoutComponent implements OnInit {
     localStorage.removeItem('loginUserId');
     localStorage.removeItem('registerInfo');
     this.LoggedOutState = true;
-  }
-
-  editStatus() {
-    this.userStatus = this.inputStatus;
-    this.inputStatus = '';
   }
 
   addFollower(){

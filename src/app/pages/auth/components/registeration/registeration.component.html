@@ -13,6 +13,9 @@
           Account Name is required. Account name can only be upper or lower case letters and numbers, but may not start
           with a number. The account name may contain both letters and numbers or only letters.
         </mat-error>
+        <div *ngIf="usernameTaken" class="error-message">
+          Username already exists! Please choose another.
+        </div>
       </mat-form-field>
 
       <mat-form-field hideRequiredMarker>

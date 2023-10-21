@@ -1,6 +1,7 @@
 import { Router } from '@angular/router';
 import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormControl, Validators, AbstractControl, ValidatorFn } from '@angular/forms';
+import { AuthService } from '../../services/auth.service'; // Adjust the path if necessary
 
 @Component({
   selector: 'app-registeration',
@@ -9,6 +10,7 @@ import { FormGroup, FormControl, Validators, AbstractControl, ValidatorFn } from
 })
 export class RegisterationComponent implements OnInit {
   hidePwd = true;
+  usernameTaken: boolean = false;
 
   registerModel = new FormGroup({
     accountName: new FormControl('', [Validators.pattern('^[a-zA-Z][a-zA-Z0-9]*$')]),
@@ -20,10 +22,9 @@ export class RegisterationComponent implements OnInit {
     zipcode: new FormControl('', [Validators.required, Validators.pattern('^[0-9]{5}(?:-[0-9]{4})?$')]) // US zip code format
   }, { validators: this.passwordsMatchValidator() });
 
-  constructor(private router: Router) { }
+  constructor(private router: Router, private authService: AuthService) { }
 
-  ngOnInit(): void {
-  }
+  ngOnInit(): void { }
 
   passwordsMatchValidator(): ValidatorFn {
     return (group: AbstractControl): { [key: string]: any } | null => {
@@ -53,21 +54,30 @@ export class RegisterationComponent implements OnInit {
 
   register() {
     if (this.registerModel.valid) {
-      const formData = this.registerModel.value;
-      const registerInfo = {
-        accountName: this.registerModel.get('accountName')?.value ?? '',
-        password: this.registerModel.get('password')?.value ?? '',
-        emailAddress: this.registerModel.get('emailAddress')?.value ?? '',
-        phoneNumber: this.registerModel.get('phoneNumber')?.value ?? '',
-        zipcode: this.registerModel.get('zipcode')?.value ?? '',
-      }
-      localStorage.setItem('registerInfo', JSON.stringify(registerInfo));
-      localStorage.setItem('loginUserName', this.registerModel.get('accountName')?.value ?? '');
-      this.router.navigate(['hw4/main']);
+      const enteredAccountName = this.registerModel.get('accountName')?.value || '';
+
+      
+      this.authService.getUsernames().subscribe(usernames => {
+        if (usernames.includes(enteredAccountName)) {
+          this.usernameTaken = true;
+        } else {
+          this.usernameTaken = false;
+          const formData = this.registerModel.value;
+          const registerInfo = {
+            accountName: enteredAccountName,
+            password: this.registerModel.get('password')?.value ?? '',
+            emailAddress: this.registerModel.get('emailAddress')?.value ?? '',
+            phoneNumber: this.registerModel.get('phoneNumber')?.value ?? '',
+            zipcode: this.registerModel.get('zipcode')?.value ?? '',
+          }
+          localStorage.setItem('registerInfo', JSON.stringify(registerInfo));
+          localStorage.setItem('loginUserName', enteredAccountName);
+          this.router.navigate(['hw4/main']);
+        }
+      });
     } else {
       // Handle invalid form data
       // Inform the user about the validation errors
     }
   }
-
 }
