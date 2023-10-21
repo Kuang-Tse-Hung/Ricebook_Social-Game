@@ -65,12 +65,23 @@
         </mat-card-header>
         <img *ngIf="post.image" mat-card-image [src]="post.image" />
         <mat-card-content>{{ post.body }}</mat-card-content>
+        <div class="comments-section" *ngIf="post.comments && post.comments.length && !post.commentsHidden">
+          <h6>Comments:</h6>
+          <div *ngFor="let comment of post.comments" class="comment">
+            <p><strong>{{ comment.author }}</strong>: {{ comment.text }}</p>
+            <span class="comment-date">{{ comment.date }}</span>
+          </div>
+        </div>
         <mat-card-actions align="end">
           <button mat-button color="primary">
             <mat-icon>insert_comment</mat-icon>
           </button>
           <button mat-button color="accent">
             <mat-icon>edit</mat-icon>
+          </button>
+          <button mat-button color="warn" (click)="toggleComments(post)">
+            Toggle Comments
+            <mat-icon>comment</mat-icon>
           </button>
         </mat-card-actions>
         <mat-card-footer>2023/09/26</mat-card-footer>

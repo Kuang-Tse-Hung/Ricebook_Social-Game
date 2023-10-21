@@ -29,8 +29,33 @@ export class PostsComponent implements OnInit {
       );
     }),
     tap(data => {
-      this.posts = [...data];
-      this.originalPosts = [...data];
+      this.posts = data.map(post => ({
+        ...post,
+        commentsHidden: false,
+        comments: [
+          {
+            author: 'John Doe',
+            text: 'Great post!',
+            date: '2023/10/01'
+          },
+          {
+            author: 'Jane Smith',
+            text: 'I totally agree!',
+            date: '2023/10/02'
+          },
+          {
+            author: 'Commenter 3',
+            text: 'WTF brooooo',
+            date: '2023/10/10'
+          },
+          {
+            author: 'Commenter 4',
+            text: 'Miss u so much bae',
+            date: '2023/10/05'
+          }
+        ]
+      }));
+      this.originalPosts = [...this.posts];
     }),
     shareReplay()
   ).subscribe();
@@ -79,15 +104,39 @@ export class PostsComponent implements OnInit {
       title: this.model.controls.title.value!.trim() ?? '',
       body: this.model.controls.body.value!.trim() ?? '',
       isNew: true,
-      image: this.selectedFile ? this.selectedFile.name : null
+      image: this.selectedFile ? this.selectedFile.name : null,
+      commentsHidden: false,
+      comments: [
+        {
+          author: 'Commenter 1',
+          text: 'Nice new post!',
+          date: '2023/10/03'
+        },
+        {
+          author: 'Commenter 2',
+          text: 'I like it!',
+          date: '2023/10/04'
+        },
+        {
+          author: 'Commenter 3',
+          text: 'WTF brooooo',
+          date: '2023/10/10'
+        },
+        {
+          author: 'Commenter 4',
+          text: 'Miss u so much bae',
+          date: '2023/10/05'
+        }
+      ]
     };
     if (this.selectedFile) {
-      postItem.image = this.selectedFile.name; // set the image property only if there's a selected file
+      postItem.image = this.selectedFile.name;
     }
     this.model.controls.title.setValue('');
     this.model.controls.body.setValue('');
     this.posts.unshift(postItem);
   }
+  
 
   cancel() {
     this.model.controls.title.setValue('');
@@ -120,4 +169,8 @@ export class PostsComponent implements OnInit {
 
     this.posts = resArr;
   }
+  toggleComments(post: PostWithAuthor) {
+    post.commentsHidden = !post.commentsHidden;  // toggles the state
+  }
+  
 }

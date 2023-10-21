@@ -6,11 +6,17 @@ export interface Post {
   title: string;
   body: string;
 }
-
+export interface Comment {
+  author: string;
+  text: string;
+  date: string; // you can use Date if you prefer
+}
 export interface PostWithAuthor extends Post{
   author:string;
   image?: string | null; 
   isNew?: boolean;
+  comments: Comment[];
+  commentsHidden?: boolean;
 }
 
 export interface PostForm {
@@ -19,4 +25,6 @@ export interface PostForm {
   title: FormControl<string | null>;
   body: FormControl<string | null>;
 }
+
+
 
