@@ -42,22 +42,32 @@ export class AuthComponent implements OnInit {
 
   confirmUser() {
     this.authService.getUser().pipe(
-      // tap((x) => console.log(x)),
-      map((x) => x.filter((u) => u.username === this.model.controls.accountName.value && u.address.street === this.model.controls.password.value)),
-      tap((x) => {
-        if (x.length > 0) {
-          this.isLoggedIn = true; // Set isLoggedIn to true if user is valid
-      
-          this.router.navigate(['hw4/main']);
-          localStorage.setItem('loginUserName', x[0].username)
-          localStorage.setItem('loginUserId', x[0].id.toString())
-        }
-        else {
+      map(users => users.filter(user => user.username === this.model.controls.accountName.value)),
+      tap(matchingUsers => {
+        if (matchingUsers.length === 0) {
           this.LoggedInError = true;
-          this.isLoggedIn = false; // Set isLoggedIn to false if user is not valid
-          this.model.setErrors({ invalidUser: true });
+          this.isLoggedIn = false; // User not found
+          this.model.controls.accountName.setErrors({ userNotFound: true });
+        } else if (matchingUsers.length === 1) {
+          const user = matchingUsers[0];
+          if (user.address.street === this.model.controls.password.value) { // Note: Consider using a more secure password strategy
+            this.isLoggedIn = true; 
+            this.LoggedInError = false;
+            this.router.navigate(['hw4/main']);
+            localStorage.setItem('loginUserName', user.username);
+            localStorage.setItem('loginUserId', user.id.toString());
+          } else {
+            this.LoggedInError = true;
+            this.isLoggedIn = false; // Incorrect password
+            this.model.controls.password.setErrors({ incorrectPassword: true });
+          }
+        } else { 
+          // Multiple users with the same username is a problem, consider reporting or handling this case
+          this.LoggedInError = true;
+          this.isLoggedIn = false;
+          this.model.setErrors({ nonUniqueUsername: true });
         }
       })
-    ).subscribe()
+    ).subscribe();
   }
 }

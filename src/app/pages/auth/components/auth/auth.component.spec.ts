@@ -5,7 +5,7 @@ import { AuthComponent } from './auth.component';
 describe('AuthComponent', () => {
   let component: AuthComponent;
   let fixture: ComponentFixture<AuthComponent>;
-
+  
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [ AuthComponent ],
