@@ -9,6 +9,8 @@ export interface Post {
 
 export interface PostWithAuthor extends Post{
   author:string;
+  image?: string | null; 
+  isNew?: boolean;
 }
 
 export interface PostForm {

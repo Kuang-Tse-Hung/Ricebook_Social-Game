@@ -77,9 +77,13 @@ export class PostsComponent implements OnInit {
       author: localStorage.getItem('loginUserName') ?? '',
       id: 0,
       title: this.model.controls.title.value!.trim() ?? '',
-      body: this.model.controls.body.value!.trim() ?? ''
+      body: this.model.controls.body.value!.trim() ?? '',
+      isNew: true,
+      image: this.selectedFile ? this.selectedFile.name : null
     };
-
+    if (this.selectedFile) {
+      postItem.image = this.selectedFile.name; // set the image property only if there's a selected file
+    }
     this.model.controls.title.setValue('');
     this.model.controls.body.setValue('');
     this.posts.unshift(postItem);

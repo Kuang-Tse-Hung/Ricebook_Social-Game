@@ -56,9 +56,14 @@
         <mat-card-header>
           <mat-card-title class="w-100">{{ post.title }}...</mat-card-title>
           <mat-card-subtitle class="w-100">Author: {{ post.author }}</mat-card-subtitle>
-          <img mat-card-avatar src="https://picsum.photos/300/300/?random" /> <!-- avater user photo-->
+         <!-- For old posts: Always show an image. Use post.image if it exists, otherwise use default. -->
+          <img *ngIf="!post.isNew" mat-card-image [src]="post.image || 'https://picsum.photos/650/600/?random'" />
+
+          <!-- For new posts: Always show the hard-written image -->
+          <img *ngIf="post.isNew && post.image" mat-card-image src="https://picsum.photos/650/600/?random" />
+
         </mat-card-header>
-        <img mat-card-image src="https://picsum.photos/650/600/?random" />
+        <img *ngIf="post.image" mat-card-image [src]="post.image" />
         <mat-card-content>{{ post.body }}</mat-card-content>
         <mat-card-actions align="end">
           <button mat-button color="primary">
