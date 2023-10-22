@@ -6,6 +6,8 @@ import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { LoginForm } from 'src/app/pages/auth/interfaces/form';
 import { ProfileService } from 'src/app/pages/profile/services/profile.service';
 import { ActivatedRoute, Router } from '@angular/router';
+import { BaselayoutService } from 'src/app/pages/common/services/baselayout.service';
+import { User } from 'src/app/pages/auth/interfaces/user';
 
 @Component({
   selector: 'app-posts',
@@ -13,6 +15,9 @@ import { ActivatedRoute, Router } from '@angular/router';
   styleUrls: ['./posts.component.scss']
 })
 export class PostsComponent implements OnInit {
+  followers: User[] = [];
+  currentUserId: number | null = null;
+ 
   post$ = new ReplaySubject<PostWithAuthor[]>()
   postRef = this.post$.pipe(
     switchMap(() => this.mainService.getPosts()),
@@ -29,36 +34,56 @@ export class PostsComponent implements OnInit {
       );
     }),
     tap(data => {
-      this.posts = data.map(post => ({
-        ...post,
-        commentsHidden: false,
-        comments: [
-          {
-            author: 'John Doe',
-            text: 'Great post!',
-            date: '2023/10/01'
-          },
-          {
-            author: 'Jane Smith',
-            text: 'I totally agree!',
-            date: '2023/10/02'
-          },
-          {
-            author: 'Commenter 3',
-            text: 'WTF brooooo',
-            date: '2023/10/10'
-          },
-          {
-            author: 'Commenter 4',
-            text: 'Miss u so much bae',
-            date: '2023/10/05'
-          }
-        ]
-      }));
-      this.originalPosts = [...this.posts];
+      // Get the user IDs of followers from local storage
+      const storedFollowers = localStorage.getItem('followers');
+     
+
+      if (storedFollowers) {
+        const followers = JSON.parse(storedFollowers);
+        const followerUserIds = followers.map((follower: User) => follower.id);
+  
+        // Filter posts to show only those from followers in local storage
+        this.posts = data
+          .filter(post => followerUserIds.includes(post.userId) || post.userId === this.currentUserId)
+          .map(post => ({
+            ...post,
+            commentsHidden: false,
+            comments: [
+              {
+                author: 'John Doe',
+                text: 'Great post!',
+                date: '2023/10/01'
+              },
+              {
+                author: 'Jane Smith',
+                text: 'I totally agree!',
+                date: '2023/10/02'
+              },
+              {
+                author: 'Commenter 3',
+                text: 'WTF brooooo',
+                date: '2023/10/10'
+              },
+              {
+                author: 'Commenter 4',
+                text: 'Miss u so much bae',
+                date: '2023/10/05'
+              }
+            ]
+          }));
+  
+        this.originalPosts = [...this.posts];
+      } else {
+        // Handle the case where there are no followers in local storage
+        // You may want to display a message or handle it differently
+        console.log('No followers in local storage.');
+        this.posts = [];
+        this.originalPosts = [];
+      }
     }),
     shareReplay()
   ).subscribe();
+  
 
   originalPosts: PostWithAuthor[] = [];
   posts: PostWithAuthor[] = [];
@@ -77,14 +102,21 @@ export class PostsComponent implements OnInit {
     private mainService: MainService,
     private profileService: ProfileService,
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private baselayoutService: BaselayoutService 
   ) { }
 
   ngOnInit(): void {
+     const currentUser = localStorage.getItem('currentUser');
+    if (currentUser) {
+      this.currentUserId = JSON.parse(currentUser).id;
+    }
     const registerInfo = localStorage.getItem('registerInfo');
     if (registerInfo) {
       return;
     }
+    this.followers = this.baselayoutService.getFollowers();
+    
     this.post$.next([]);
     // this.route.queryParams.pipe(
     //   tap(params => {
@@ -94,6 +126,13 @@ export class PostsComponent implements OnInit {
     //     }
     //   })
     // ).subscribe();
+    const storedFollowers = localStorage.getItem('followers');
+    if (storedFollowers) {
+      const followers = JSON.parse(storedFollowers);
+    
+    // Print the followers in the console
+      //console.log('Followers from Local Storage:', followers);
+    }
   }
 
   publishPost() {
