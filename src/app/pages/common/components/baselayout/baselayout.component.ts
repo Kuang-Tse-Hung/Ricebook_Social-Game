@@ -52,22 +52,18 @@ export class BaselayoutComponent implements OnInit {
             if (!this.userStatus) {
               this.userStatus = data[userId - 1].company.catchPhrase;
             }
-           
-            console.log(userId-1);
+
+            console.log(userId - 1);
             for (let i = 0; i < 3; i++) {
               this.followers.push(data[userId]);
               userId++;
             }
-           
-            
-
-           
             // Add the current user to the followers list in memory
-            
             //this.baselayoutService.followers = this.followers;
-            
             // After fetching the default followers, store them in local storage
             localStorage.setItem('followers', JSON.stringify(this.followers));
+            console.log(this.followers,'followers not stored');
+            // this.baselayoutService.followers = this.followers;
           })
         ).subscribe();
       }
@@ -115,9 +111,8 @@ export class BaselayoutComponent implements OnInit {
         bs: ''
       }
     };
-    
     this.followers.push(newFollower);
-    //this.baselayoutService.followers = this.followers;
+    this.baselayoutService.addTrackedUser(newFollower);
     // Store updated followers in local storage
     //localStorage.setItem('followers', JSON.stringify(this.followers));
   }
@@ -127,7 +122,7 @@ export class BaselayoutComponent implements OnInit {
     if (index !== -1) {
       this.followers.splice(index, 1);
     }
-    //this.baselayoutService.followers = this.followers;
+    this.baselayoutService.removeTrackedUser(user);
     //console.log('Followers List:', this.followers);
     // Store updated followers in local storage
     //localStorage.setItem('followers', JSON.stringify(this.followers));

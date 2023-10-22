@@ -1,9 +1,8 @@
 import { MainService } from './../../services/main.service';
 import { Component, OnInit } from '@angular/core';
-import { BehaviorSubject, ReplaySubject, filter, forkJoin, map, scan, shareReplay, startWith, switchMap, tap } from 'rxjs';
-import { Post, PostForm, PostWithAuthor } from '../../interfaces/post';
-import { FormGroup, FormControl, Validators } from '@angular/forms';
-import { LoginForm } from 'src/app/pages/auth/interfaces/form';
+import { ReplaySubject, forkJoin, map, switchMap, tap } from 'rxjs';
+import { PostForm, PostWithAuthor } from '../../interfaces/post';
+import { FormGroup, FormControl } from '@angular/forms';
 import { ProfileService } from 'src/app/pages/profile/services/profile.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BaselayoutService } from 'src/app/pages/common/services/baselayout.service';
@@ -17,10 +16,22 @@ import { User } from 'src/app/pages/auth/interfaces/user';
 export class PostsComponent implements OnInit {
   followers: User[] = [];
   currentUserId: number | null = null;
- 
+
   post$ = new ReplaySubject<PostWithAuthor[]>()
-  postRef = this.post$.pipe(
-    switchMap(() => this.mainService.getPosts()),
+  postRef2 = this.post$.pipe(
+    switchMap(() => this.baselayoutService.trackedUsers$),
+    map((data) => data.map((x) => x.id)),
+    switchMap((followerIds) => (
+      this.mainService.getPosts().pipe(
+        map(posts => {
+          let loginUserId = localStorage.getItem('loginUserId');
+          followerIds.push(Number(loginUserId));
+          const filteredPosts = posts.filter(post => followerIds.includes(post.userId));
+          console.log(filteredPosts);
+          return filteredPosts;
+        })
+      )
+    )),
     switchMap((data) => {
       const distinctUserIds = [...new Set(data.map(post => post.userId.toString()))];
       const userObservables = distinctUserIds.map(userId =>
@@ -33,57 +44,98 @@ export class PostsComponent implements OnInit {
         }))
       );
     }),
-    tap(data => {
-      // Get the user IDs of followers from local storage
-      const storedFollowers = localStorage.getItem('followers');
-     
-
-      if (storedFollowers) {
-        const followers = JSON.parse(storedFollowers);
-        const followerUserIds = followers.map((follower: User) => follower.id);
-  
-        // Filter posts to show only those from followers in local storage
-        this.posts = data
-          .filter(post => followerUserIds.includes(post.userId) || post.userId === this.currentUserId)
-          .map(post => ({
-            ...post,
-            commentsHidden: false,
-            comments: [
-              {
-                author: 'John Doe',
-                text: 'Great post!',
-                date: '2023/10/01'
-              },
-              {
-                author: 'Jane Smith',
-                text: 'I totally agree!',
-                date: '2023/10/02'
-              },
-              {
-                author: 'Commenter 3',
-                text: 'WTF brooooo',
-                date: '2023/10/10'
-              },
-              {
-                author: 'Commenter 4',
-                text: 'Miss u so much bae',
-                date: '2023/10/05'
-              }
-            ]
-          }));
-  
-        this.originalPosts = [...this.posts];
-      } else {
-        // Handle the case where there are no followers in local storage
-        // You may want to display a message or handle it differently
-        console.log('No followers in local storage.');
-        this.posts = [];
-        this.originalPosts = [];
-      }
-    }),
-    shareReplay()
+    map((data) => data.map(post => ({
+      ...post,
+      commentsHidden: false,
+      comments: [
+        {
+          author: 'John Doe',
+          text: 'Great post!',
+          date: '2023/10/01'
+        },
+        {
+          author: 'Jane Smith',
+          text: 'I totally agree!',
+          date: '2023/10/02'
+        },
+        {
+          author: 'Commenter 3',
+          text: 'WTF brooooo',
+          date: '2023/10/10'
+        },
+        {
+          author: 'Commenter 4',
+          text: 'Miss u so much bae',
+          date: '2023/10/05'
+        }
+      ]
+    }))),
+    tap((x) => this.posts = x),
+    tap((x) => this.originalPosts = x)
   ).subscribe();
-  
+
+  // postRef = this.post$.pipe(
+  //   switchMap(() => this.mainService.getPosts()),
+  //   switchMap((data) => {
+  //     const distinctUserIds = [...new Set(data.map(post => post.userId.toString()))];
+  //     const userObservables = distinctUserIds.map(userId =>
+  //       this.profileService.getUser(userId)
+  //     );
+  //     return forkJoin(userObservables).pipe(
+  //       map(users => data.map(post => {
+  //         const user = users.find(u => u.id === post.userId);
+  //         return { ...post, author: user ? user.name : 'Unknown' };
+  //       }))
+  //     );
+  //   }),
+  //   tap(data => {
+  //     // Get the user IDs of followers from local storage
+  //     const storedFollowers = localStorage.getItem('followers');
+  //     if (storedFollowers) {
+  //       const followers = JSON.parse(storedFollowers);
+  //       const followerUserIds = followers.map((follower: User) => follower.id);
+  //       // Filter posts to show only those from followers in local storage
+  //       this.posts = data
+  //         .filter(post => followerUserIds.includes(post.userId))
+  //         .map(post => ({
+  //           ...post,
+  //           commentsHidden: false,
+  //           comments: [
+  //             {
+  //               author: 'John Doe',
+  //               text: 'Great post!',
+  //               date: '2023/10/01'
+  //             },
+  //             {
+  //               author: 'Jane Smith',
+  //               text: 'I totally agree!',
+  //               date: '2023/10/02'
+  //             },
+  //             {
+  //               author: 'Commenter 3',
+  //               text: 'WTF brooooo',
+  //               date: '2023/10/10'
+  //             },
+  //             {
+  //               author: 'Commenter 4',
+  //               text: 'Miss u so much bae',
+  //               date: '2023/10/05'
+  //             }
+  //           ]
+  //         }));
+
+  //       this.originalPosts = [...this.posts];
+  //     } else {
+  //       // Handle the case where there are no followers in local storage
+  //       // You may want to display a message or handle it differently
+  //       console.log('No followers in local storage.');
+  //       this.posts = [];
+  //       this.originalPosts = [];
+  //     }
+  //   }),
+  //   shareReplay()
+  // ).subscribe();
+
 
   originalPosts: PostWithAuthor[] = [];
   posts: PostWithAuthor[] = [];
@@ -103,11 +155,11 @@ export class PostsComponent implements OnInit {
     private profileService: ProfileService,
     private route: ActivatedRoute,
     private router: Router,
-    private baselayoutService: BaselayoutService 
+    private baselayoutService: BaselayoutService
   ) { }
 
   ngOnInit(): void {
-     const currentUser = localStorage.getItem('currentUser');
+    const currentUser = localStorage.getItem('currentUser');
     if (currentUser) {
       this.currentUserId = JSON.parse(currentUser).id;
     }
@@ -115,8 +167,7 @@ export class PostsComponent implements OnInit {
     if (registerInfo) {
       return;
     }
-    this.followers = this.baselayoutService.getFollowers();
-    
+
     this.post$.next([]);
     // this.route.queryParams.pipe(
     //   tap(params => {
@@ -126,13 +177,6 @@ export class PostsComponent implements OnInit {
     //     }
     //   })
     // ).subscribe();
-    const storedFollowers = localStorage.getItem('followers');
-    if (storedFollowers) {
-      const followers = JSON.parse(storedFollowers);
-    
-    // Print the followers in the console
-      //console.log('Followers from Local Storage:', followers);
-    }
   }
 
   publishPost() {
@@ -175,7 +219,7 @@ export class PostsComponent implements OnInit {
     this.model.controls.body.setValue('');
     this.posts.unshift(postItem);
   }
-  
+
 
   cancel() {
     this.model.controls.title.setValue('');
@@ -211,5 +255,5 @@ export class PostsComponent implements OnInit {
   toggleComments(post: PostWithAuthor) {
     post.commentsHidden = !post.commentsHidden;  // toggles the state
   }
-  
+
 }

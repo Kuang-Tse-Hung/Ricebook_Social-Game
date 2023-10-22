@@ -6,19 +6,34 @@ import { User } from 'src/app/pages/auth/interfaces/user';
   providedIn: 'root'
 })
 export class BaselayoutService {
-  isShowNav = new BehaviorSubject<boolean>(false);
-  followers: User[] = []; 
+  // isShowNav = new BehaviorSubject<boolean>(false);
+  storedFollow = JSON.parse(localStorage.getItem('followers') ?? '');
+  private trackedUsersSubject = new BehaviorSubject<User[]>(this.storedFollow);
+  trackedUsers$ = this.trackedUsersSubject.asObservable();
 
   constructor() { }
 
-  showNav(): void {
-    this.isShowNav.next(true);
+  // showNav(): void {
+  //   this.isShowNav.next(true);
+  // }
+
+  // hideNav(): void {
+  //   this.isShowNav.next(false);
+  // }
+
+  addTrackedUser(user: User) {
+    const currentUsers = this.trackedUsersSubject.getValue();
+    const updatedUsers = [...currentUsers, user];
+    this.trackedUsersSubject.next(updatedUsers);
   }
 
-  hideNav(): void {
-    this.isShowNav.next(false);
+  removeTrackedUser(user: User) {
+    const currentUsers = this.trackedUsersSubject.getValue();
+    const updatedUsers = currentUsers.filter(u => u.id !== user.id);
+    this.trackedUsersSubject.next(updatedUsers);
   }
-  getFollowers(): User[] {
-    return this.followers;
-  }
+
+  // getFollowers(): User[] {
+  //   return this.followers;
+  // }
 }
