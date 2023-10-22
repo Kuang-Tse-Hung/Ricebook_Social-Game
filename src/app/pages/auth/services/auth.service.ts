@@ -19,5 +19,11 @@ export class AuthService {
       map((users: User[]) => users.map(user => user.username))
     );
   }
+
+  getUserByName(username: string) {
+    return this.http.get<User[]>(`${environment.apiUrl}/users?username=${username}`).pipe(
+      map(users => users[0]) // Assuming the API returns an array, we take the first match
+    );
+  }
 }
 

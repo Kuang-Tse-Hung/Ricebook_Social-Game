@@ -64,6 +64,9 @@
         </button>
       </mat-list-item>
     </mat-list>
+    <div *ngIf="notificationMessage" class="notification">
+      {{ notificationMessage }}
+    </div>
     <mat-nav-list>
 
       <mat-list-item *ngFor="let follower of followers">

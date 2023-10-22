@@ -13,3 +13,13 @@
 .toolbar-seprator {
   flex: 1 1 auto;
 }
+
+.notification {
+  padding: 10px;
+  background-color: #f8d7da; // Light red for error
+  border: 1px solid #f5c6cb;
+  border-radius: 4px;
+  margin-top: 10px;
+  margin-left: 15px;  // Add some margin to align with other components
+  margin-right: 15px;
+}

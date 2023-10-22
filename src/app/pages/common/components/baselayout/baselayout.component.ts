@@ -20,6 +20,7 @@ export class BaselayoutComponent implements OnInit {
   inputFollower = '';
   followers: User[] = [];
   LoggedOutState = false;
+  notificationMessage: string = '';
 
   constructor(
     private router: Router,
@@ -62,7 +63,7 @@ export class BaselayoutComponent implements OnInit {
             //this.baselayoutService.followers = this.followers;
             // After fetching the default followers, store them in local storage
             localStorage.setItem('followers', JSON.stringify(this.followers));
-            console.log(this.followers,'followers not stored');
+            console.log(this.followers, 'followers not stored');
             // this.baselayoutService.followers = this.followers;
           })
         ).subscribe();
@@ -88,33 +89,21 @@ export class BaselayoutComponent implements OnInit {
   }
 
   addFollower() {
-    let newFollower: User = {
-      id: Date.now(),  // You might want to replace this with some other unique ID logic
-      name: this.inputFollower, // Using the inputFollower for name for now
-      username: this.inputFollower,
-      email: '',
-      address: {
-        street: '',
-        suite: '',
-        city: '',
-        zipcode: '',
-        geo: {
-          lat: '',
-          lng: ''
+    if (this.inputFollower) {
+      this.authService.getUserByName(this.inputFollower).subscribe(userToAdd => {
+        if (userToAdd) {
+          if (!this.followers.some(follower => follower.id === userToAdd.id)) {
+            this.followers.push(userToAdd);
+            this.baselayoutService.addTrackedUser(userToAdd);
+
+          } else {
+            this.notificationMessage = "User is already a follower";
+          }
+        } else {
+          this.notificationMessage = "User not found in the API";
         }
-      },
-      phone: '',
-      website: '',
-      company: {
-        name: '',
-        catchPhrase: 'new follower',
-        bs: ''
-      }
-    };
-    this.followers.push(newFollower);
-    this.baselayoutService.addTrackedUser(newFollower);
-    // Store updated followers in local storage
-    //localStorage.setItem('followers', JSON.stringify(this.followers));
+      });
+    }
   }
 
   unfollow(user: User) {
