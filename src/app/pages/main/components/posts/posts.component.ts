@@ -16,7 +16,7 @@ import { User } from 'src/app/pages/auth/interfaces/user';
 export class PostsComponent implements OnInit {
   followers: User[] = [];
   currentUserId: number | null = null;
-
+  
   post$ = new ReplaySubject<PostWithAuthor[]>()
   postRef2 = this.post$.pipe(
     switchMap(() => this.baselayoutService.trackedUsers$),
@@ -70,10 +70,30 @@ export class PostsComponent implements OnInit {
         }
       ]
     }))),
+    tap((data) => {
+      data.forEach(post => {
+        if (!post.date) {
+          post.date = this.generateRandomDateWithinPastYear();
+        }
+      });
+      data.sort((a, b) => {
+        const dateA = new Date(a.date || '1900/01/01');
+        const dateB = new Date(b.date || '1900/01/01');
+        return dateB.getTime() - dateA.getTime();
+      });
+    }),
     tap((x) => this.posts = x),
     tap((x) => this.originalPosts = x)
   ).subscribe();
-
+  generateRandomDateWithinPastYear(): string {
+    const currentDate = new Date();
+    const start = new Date(new Date(currentDate).setFullYear(currentDate.getFullYear() - 1));
+    const end = currentDate;
+  
+    const randomDate = new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
+    return `${randomDate.getFullYear()}/${String(randomDate.getMonth() + 1).padStart(2, '0')}/${String(randomDate.getDate()).padStart(2, '0')}`;
+  }
+  
   // postRef = this.post$.pipe(
   //   switchMap(() => this.mainService.getPosts()),
   //   switchMap((data) => {
@@ -157,7 +177,13 @@ export class PostsComponent implements OnInit {
     private router: Router,
     private baselayoutService: BaselayoutService
   ) { }
-
+  sortPostsByDate(posts: PostWithAuthor[]): PostWithAuthor[] {
+    return posts.sort((a, b) => {
+        const dateA = new Date(a.date || '1900/01/01');
+        const dateB = new Date(b.date || '1900/01/01');
+        return dateB.getTime() - dateA.getTime();
+    });
+  } 
   ngOnInit(): void {
     const currentUser = localStorage.getItem('currentUser');
     if (currentUser) {
@@ -177,8 +203,12 @@ export class PostsComponent implements OnInit {
     //     }
     //   })
     // ).subscribe();
+    
   }
-
+  getCurrentDateString(): string {
+    const date = new Date();
+    return `${date.getFullYear()}/${String(date.getMonth() + 1).padStart(2, '0')}/${String(date.getDate()).padStart(2, '0')}`;
+  }
   publishPost() {
     const postItem = {
       userId: 0,
@@ -187,6 +217,7 @@ export class PostsComponent implements OnInit {
       title: this.model.controls.title.value!.trim() ?? '',
       body: this.model.controls.body.value!.trim() ?? '',
       isNew: true,
+      date: this.getCurrentDateString(),
       image: this.selectedFile ? this.selectedFile.name : null,
       commentsHidden: false,
       comments: [

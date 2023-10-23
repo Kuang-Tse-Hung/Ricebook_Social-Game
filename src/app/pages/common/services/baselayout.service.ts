@@ -7,7 +7,8 @@ import { User } from 'src/app/pages/auth/interfaces/user';
 })
 export class BaselayoutService {
   // isShowNav = new BehaviorSubject<boolean>(false);
-  storedFollow = JSON.parse(localStorage.getItem('followers') ?? '');
+  
+  storedFollow = JSON.parse(localStorage.getItem('followers') ?? '[]');
   private trackedUsersSubject = new BehaviorSubject<User[]>(this.storedFollow);
   trackedUsers$ = this.trackedUsersSubject.asObservable();
 

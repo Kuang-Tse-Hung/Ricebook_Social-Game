@@ -5,6 +5,7 @@ export interface Post {
   id: number;
   title: string;
   body: string;
+  date?: string;
 }
 export interface Comment {
   author: string;
@@ -16,6 +17,7 @@ export interface PostWithAuthor extends Post{
   image?: string | null; 
   isNew?: boolean;
   comments: Comment[];
+  date?: string;
   commentsHidden?: boolean;
 }
 

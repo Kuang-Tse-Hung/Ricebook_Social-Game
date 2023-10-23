@@ -3,6 +3,7 @@ import { ProfileComponent } from './profile.component';
 import { ProfileService } from '../../services/profile.service';
 import { of } from 'rxjs';
 import { ReactiveFormsModule } from '@angular/forms';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 
 describe('ProfileComponent', () => {
   let component: ProfileComponent;

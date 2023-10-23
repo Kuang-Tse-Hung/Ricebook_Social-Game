@@ -3,6 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormControl, Validators, AbstractControl, ValidatorFn } from '@angular/forms';
 import { AuthService } from '../../services/auth.service'; // Adjust the path if necessary
 
+
 @Component({
   selector: 'app-registeration',
   templateUrl: './registeration.component.html',
