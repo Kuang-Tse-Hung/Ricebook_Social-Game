@@ -25,5 +25,8 @@ export class AuthService {
       map(users => users[0]) // Assuming the API returns an array, we take the first match
     );
   }
+  registerUser(userData: any) {
+    return this.http.post<User>(`${environment.apiUrl}/users/register`, userData);
+  }
 }
 

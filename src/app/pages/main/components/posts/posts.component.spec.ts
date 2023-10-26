@@ -128,5 +128,89 @@ describe('PostsComponent', () => {
       expect(newPostsCount).toBeLessThan(addedPostsCount);
   }));
   
+  it('should generate a date within the past year', () => {
+    const generatedDate = component.generateRandomDateWithinPastYear();
+    const currentDate = new Date();
+    const oneYearAgo = new Date(new Date().setFullYear(currentDate.getFullYear() - 1));
+
+    expect(new Date(generatedDate).getTime()).toBeGreaterThanOrEqual(oneYearAgo.getTime());
+    expect(new Date(generatedDate).getTime()).toBeLessThanOrEqual(currentDate.getTime());
+});
+ 
+
+  it('should return the current date string in the format YYYY/MM/DD', () => {
+    const date = new Date();
+    const expectedDateString = `${date.getFullYear()}/${String(date.getMonth() + 1).padStart(2, '0')}/${String(date.getDate()).padStart(2, '0')}`;
+    
+    const result = component.getCurrentDateString();
+
+    expect(result).toEqual(expectedDateString);
+  });
+   
+   
+  it('should add a new post to the posts array', () => {
+    const initialPostsLength = component.posts.length;
+
+    component.model.controls.title.setValue('Test Title');
+    component.model.controls.body.setValue('Test Body');
+    component.publishPost();
+
+    const newPostsLength = component.posts.length;
+    expect(newPostsLength).toBe(initialPostsLength + 1);
+    expect(component.posts[0].title).toEqual('Test Title');
+    expect(component.posts[0].body).toEqual('Test Body');
+  });
+   
+   
   
+  it('should call post$.next on initialization', () => {
+    spyOn(component.post$, 'next');
+    component.ngOnInit();
+    expect(component.post$.next).toHaveBeenCalled();
+});
+
+it('should correctly sort posts by date', () => {
+    const mockPosts: PostWithAuthor[] = [
+        {
+            userId: 1,
+            id: 1,
+            title: 'Post 1',
+            body: 'Body of Post 1',
+            date: '2023/04/29',
+            author: 'Author1',
+            comments: [],
+            commentsHidden: false
+            // add other properties as needed
+        },
+        {
+            userId: 2,
+            id: 2,
+            title: 'Post 2',
+            body: 'Body of Post 2',
+            date: '2022/04/28',
+            author: 'Author2',
+            comments: [],
+            commentsHidden: true
+            // add other properties as needed
+        },
+        {
+            userId: 3,
+            id: 3,
+            title: 'Post 3',
+            body: 'Body of Post 3',
+            date: '2023/04/30',
+            author: 'Author3',
+            comments: [],
+            commentsHidden: false
+            // add other properties as needed
+        },
+    ];
+
+    const sortedPosts = component.sortPostsByDate(mockPosts);
+    expect(sortedPosts[0].title).toEqual('Post 3');
+    expect(sortedPosts[1].title).toEqual('Post 1');
+    expect(sortedPosts[2].title).toEqual('Post 2');
+});
+
+
 });

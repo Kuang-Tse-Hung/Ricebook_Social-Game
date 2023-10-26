@@ -96,4 +96,53 @@ describe('RegisterationComponent', () => {
     //expect(router.navigate).toHaveBeenCalledWith(['hw4/main']);
   });
   
+  it('should not attempt registration if form is invalid', () => {
+    spyOn(authService, 'getUsernames'); // Ensure this method isn't called
+    spyOn(router, 'navigate');
+
+    // Make form invalid by keeping some fields empty
+    component.registerModel.patchValue({
+        accountName: '',
+        password: '',
+        confirmPassword: '',
+        emailAddress: '',
+        phoneNumber: '',
+        dateOfBirth: '',
+        zipcode: ''
+    });
+
+    component.register();
+
+    // Ensure getUsernames wasn't called because the form is invalid
+    expect(authService.getUsernames).not.toHaveBeenCalled();
+    // Ensure we didn't navigate because the form is invalid
+    expect(router.navigate).not.toHaveBeenCalled();
+});
+
+it('should handle successful registration', () => {
+    spyOn(authService, 'getUsernames').and.returnValue(of(['testUser1', 'testUser2']));
+    spyOn(router, 'navigate');
+
+    // Assume the form is valid and the username is not taken
+    component.registerModel.patchValue({
+        accountName: 'newUser3',
+        password: 'Password123',
+        confirmPassword: 'Password123',
+        emailAddress: 'testnew@email.com',
+        phoneNumber: '123-456-7890',
+        dateOfBirth: '2000-01-01',
+        zipcode: '12345'
+    });
+
+    component.register();
+
+    // Username is not in the list, so it's not taken
+    expect(component.usernameTaken).toBe(false);
+    // Check if the user info has been saved to localStorage
+    const registerInfo = JSON.parse(localStorage.getItem('registerInfo') || '{}');
+    expect(registerInfo.accountName).toBe('newUser3');
+    expect(localStorage.getItem('loginUserName')).toBe('newUser3');
+    // Ensure we navigate to the correct route after successful registration
+    expect(router.navigate).toHaveBeenCalledWith(['hw4/main']);
+});
 });

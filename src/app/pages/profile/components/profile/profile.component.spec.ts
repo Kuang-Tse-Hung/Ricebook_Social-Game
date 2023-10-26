@@ -3,7 +3,6 @@ import { ProfileComponent } from './profile.component';
 import { ProfileService } from '../../services/profile.service';
 import { of } from 'rxjs';
 import { ReactiveFormsModule } from '@angular/forms';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
 
 describe('ProfileComponent', () => {
   let component: ProfileComponent;
@@ -11,7 +10,6 @@ describe('ProfileComponent', () => {
   let mockProfileService: any;
 
   beforeEach(async () => {
-    // Create a mock profile service
     mockProfileService = {
       getUser: jasmine.createSpy('getUser').and.returnValue(of({
         username: 'testUsername',
@@ -37,20 +35,55 @@ describe('ProfileComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(ProfileComponent);
     component = fixture.componentInstance;
-    // Clear local storage before each test
     localStorage.clear();
   });
 
   it('should fetch logged-in user profile username', () => {
-    // Simulate that registerInfo is not in localStorage, but loginUserId is
     localStorage.setItem('loginUserId', 'testUserId');
-
-    // Trigger the ngOnInit method
     fixture.detectChanges();
-
     expect(mockProfileService.getUser).toHaveBeenCalledWith('testUserId');
     expect(component.profileForm.controls.username.value).toBe('testUsername');
   });
 
-  // Add more tests as needed
+  it('should handle file selection', () => {
+    const mockEvent = {
+      target: {
+        files: [ 'test-file' ]
+      }
+    };
+    component.onFileSelected(mockEvent);
+    expect(component.selectedFile).toBe('test-file');
+  });
+
+  it('should toggle edit mode', () => {
+    component.isEditMode = false;
+    component.toggleEditMode();
+    expect(component.isEditMode).toBe(true);
+    component.toggleEditMode();
+    expect(component.isEditMode).toBe(false);
+  });
+
+  it('should not save the profile when the form is invalid', () => {
+    const spyToggleEditMode = spyOn(component, 'toggleEditMode');
+    component.profileForm.setErrors({ invalid: true });
+    component.saveProfile();
+    expect(spyToggleEditMode).not.toHaveBeenCalled();
+  });
+
+  it('should save the profile when the form is valid', () => {
+    const spyToggleEditMode = spyOn(component, 'toggleEditMode');
+    component.profileForm.controls.username.setValue('testUser');
+    component.profileForm.controls.phone.setValue('123-456-7890');
+    component.profileForm.controls.email.setValue('test@example.com');
+    component.profileForm.controls.zipcode.setValue('12345');
+    component.profileForm.controls.password.setValue('testPassword');
+    component.saveProfile();
+    expect(spyToggleEditMode).toHaveBeenCalled();
+  });
+  
+ 
+  it('should be created', () => {
+    expect(component).toBeTruthy();
+  });
+
 });
